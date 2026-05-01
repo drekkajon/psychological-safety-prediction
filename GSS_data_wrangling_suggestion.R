@@ -42,7 +42,7 @@ pacman::p_load(tidyverse,
 ## Employment characteristics:
 # -- wrkstat: employment status
 # -- indus10 — occupational industry/sector based on 4-digit NAIC code; I strongly suggest collapsing
-# -- hrs1 — hours worked last week
+# -- hrs1 — hours worked last week (people who work less frequent hours may be more willing to tolerate a poor relationship with)
 
 ## Perceptions of job stability:
 # -- joblose: perceived likelihood of job loss (higher perceived chance of loss --> more likely to put up with bad relationships)
@@ -184,12 +184,15 @@ gssCleaned <- gssCleaned %>%
 ## Let's recode as binary for simplicity: 
 gssCleaned <- gssCleaned %>% 
   mutate(trustBinary = case_when(
+    is.na(trust) ~ NA,
     trust == "most people can be trusted" ~ 1,
     TRUE ~ 0
   ))
 ## Proof we preserved:
 table(gssCleaned$trust, useNA = "always")
 table(gssCleaned$trustBinary, useNA = "always")
+
+
 ## Then always drop the original column:
 gssCleaned <- gssCleaned %>% select(-trust)
 
