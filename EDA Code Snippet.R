@@ -101,9 +101,45 @@ ggplot(eff_df2, aes(x = spvtrfair, y = prob.Very.good, group = 1)) +
   theme_minimal(base_size = 14)
 
 
+# Initial dataset
+n_initial <- nrow(gss)
 
+# After employment filter
+gss_emp <- gss %>%
+  filter(wrkstat %in% c("Working full time", "Working part time"))
 
+n_employed <- nrow(gss_emp)
 
+# After reserve code cleaning
+gss_clean <- gss %>%
+  mutate(across(
+    where(is.character),
+    ~ ifelse(grepl("^\\.[a-z]:", .x), NA, .x)
+  )) %>%
+  filter(wrkstat %in% c("Working full time", "Working part time"))
 
+n_clean <- nrow(gss_clean)
 
+# Final modeling dataset (complete cases)
+n_final <- nrow(model_df)
 
+# Print results
+n_initial
+n_employed
+n_clean
+n_final
+
+km <- kmeans(
+  scale(
+    model_df %>%
+      dplyr::mutate(
+        trustman = as.numeric(trustman),
+        respect = as.numeric(respect),
+        spvtrfair = as.numeric(spvtrfair)
+      ) %>%
+      dplyr::select(trustman, respect, spvtrfair)
+  ),
+  centers = 3
+)
+
+km
